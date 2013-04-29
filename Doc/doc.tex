@@ -1,0 +1,102 @@
+\documentclass[a4paper,11pt,twoside]{article}%{article}
+
+\usepackage{ucs}							% ??????
+\usepackage{lmodern}							%Pour certaine fonte française
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[english]{babel}
+\usepackage[english]{minitoc}						%Pour les sommaires en début de chapitre/section
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=4cm]{geometry}		%Pour changer la géométrie des pages
+
+\usepackage{amssymb, amsmath,amsfonts}					%Pour la mise en page des maths
+\usepackage{algorithm, algorithmic}					%Pour écrire des algorithmes
+
+\usepackage{placeins}							%Pour forcer la position des images dans une section/sous-section
+\usepackage{graphicx}							%Pour les opérations sur les images
+\usepackage{tikz}							%Pour faire des schémas et choses du genre de bonne qualité en Latex directement
+%\usetikzlibrary{arrows,snakes,backgrounds}
+%\usetikzlibrary{fadings}
+%\usetikzlibrary{patterns}
+%\usetikzlibrary{decorations.text}
+
+\usepackage{textcomp}							% ??????
+\usepackage{color}							%Pour mettre de la couleur
+\usepackage{array}							% ??????
+
+\usepackage{fancyhdr}							%Pour les entêtes
+\usepackage{fancybox}							%Pour encadrer les équations
+
+\usepackage{xspace}							%Pour gérer correctement les espaces dans les commandes contenant du texte.
+
+\usepackage{minted}							%Pour afficher des fichiers sources
+
+\usepackage[pdftex]{hyperref}						%Pour les liens hypertexte des glossaires, sommaires, formules, ....
+
+\hypersetup{
+      backref       = true,
+      pagebackref   = true,
+      hyperindex    = true,
+      colorlinks    = true,
+      breaklinks    = true,
+      urlcolor      = blue,
+      linkcolor     = black,
+      bookmarks     = true,
+      bookmarksopen = true,
+      pdfpagemode   = ,
+      pdfstartview  = FitH,
+      pdfauthor     = {Plum Guillaume},
+      pdftitle      = {Writing a Gadget Simulation Visualization program},
+      pdfsubject    = {Simulation vizualization},
+      pdfkeywords   = {tree code, quad tree, quadtree, oct tree, oct, tree, octtree},
+      pdfcreator    = {PDFLaTeX},
+      pdfproducer   = {PDFLaTeX}
+}
+
+% Title Page
+\title{WisuGo : A Numerical simulation visualiuion software}
+\author{Plum Guillaume}
+\date{\today}
+
+%Définition de nouvelle commande afin de faciliter l'écriture :
+\newcommand{\x}[1]{\ensuremath{#1'}}  %\dfrac{d #1}{d x}}}
+\newcommand{\R}{\ensuremath{\mathcal{R}}}
+\newcommand{\dr}{\ensuremath{\mathrm{dr}}}
+\newcommand{\dx}[1]{\ensuremath{\mathrm{d#1}}}
+\newcommand{\ddp}{\ensuremath{\mathrm{dp}}}
+\newcommand{\vdr}{\ensuremath{\mathrm{d}\vec{r}}}
+\newcommand{\vdp}{\ensuremath{\mathrm{d}\vec{p}}}
+\newcommand{\erf}{\ensuremath{\mathrm{erf}}}
+\newcommand{\pint}{\displaystyle{\int}}
+\newcommand{\deriv}[2]{\ensuremath{\dfrac{\mathrm{d}#1}{\mathrm{d#2}}}}
+\newcommand{\King}{\textsc{King}\xspace}
+
+\newcommand{\CH}[1]{\textsc{CH}$#1$\xspace}
+\newcommand{\CHa}{\textsc{CH}$\alpha$\xspace}
+
+\renewcommand{\(}{\ensuremath{\left(}}
+\renewcommand{\)}{\ensuremath{\right)}}
+
+%Quelque compteur pour les tables des matiéres et minitoc
+\setcounter{tocdepth}{3}
+%\setcounter{minitocdepth}{2}
+\setcounter{secnumdepth}{4}
+
+\usemintedstyle{perldoc}
+
+\begin{document}
+	\maketitle
+
+	\begin{abstract}
+		Some preliminary tests
+	\end{abstract}
+
+	\begin{minted}[linenos,obeytabs]{go}
+		func New() Node {
+			var res Node
+			Node.Parent = nil
+			return res
+		}
+	\end{minted}
+\end{document}
+
+%vim: spelllang=en
