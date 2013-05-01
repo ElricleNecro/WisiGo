@@ -4,4 +4,6 @@ Doc/doc.maf
 Doc/doc.mtc*
 Doc/doc.out
 Doc/doc.pdf
-
+ReadGadget/.*.swo
+ReadGadget/*.bak
+ReadGadget/*.test
