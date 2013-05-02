@@ -7,3 +7,4 @@ Doc/doc.pdf
 ReadGadget/.*.swo
 ReadGadget/*.bak
 ReadGadget/*.test
+octree/octree.test
