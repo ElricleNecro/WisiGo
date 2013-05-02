@@ -2,6 +2,7 @@
 package octree
 
 import rg "WisiGo/ReadGadget"
+import "fmt"
 
 var (
 	UseGoRoutine = false //Use of Go Routine for the tree creation? If you set this to true, don't forget to set runtime.GOMAXPROCS to the correct value.
@@ -70,6 +71,7 @@ func (e *Node) Create(NbMin int32) {
 
 		//We are calculating the particle contain in the Node :
 		NbUtil := t1.setPart(NbMin)
+		fmt.Println(t1.level, NbUtil)
 
 		//If there is particle in the node, we are actualizing the Particle slice, launching calculation of the son and preparing the next brother.
 		if NbUtil != 0 {
@@ -89,7 +91,7 @@ func (e *Node) setPart(NbMin int32) (NbUse int32) {
 	NbUse = 0
 	for i, _ := range e.Part {
 		if e.In(e.Part[i]) {
-			Swap(&e.Part[NbUse], &e.Part[i])
+			rg.Swap(&e.Part[NbUse], &e.Part[i])
 			NbUse += 1
 		}
 	}
@@ -108,11 +110,83 @@ func (e Node) In(a rg.Particule) bool {
 	return true
 }
 
-//Swap particle a and b!
-func Swap(a, b *rg.Particule) {
-	var tmp rg.Particule
+func (e Node) savePart(out WriteStringer) error {
+	var err error
+	if e.Fils != nil {
+		err = e.Fils.savePart(out)
+		if err != nil {
+			return err
+		}
+	} else {
+		for _, v := range e.Part {
+			_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d %d\n", v.Pos[0], v.Pos[1], v.Pos[2], v.Id, e.level, len(e.Part)))
+			if err != nil {
+				return err
+			}
+		}
+	}
 
-	tmp = *a
-	*a = *b
-	*b = tmp
+	if e.Frere != nil {
+		err = e.Frere.savePart(out)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e Node) SaveNode(out WriteStringer) (err error) {
+	if e.Fils != nil {
+		err = e.Fils.SaveNode(out)
+		if err != nil {
+			return
+		}
+	} else {
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]+e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]-e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]-e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]+e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]-e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]-e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]-e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]-e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]-e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]-e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]+e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]+e.Size/2, e.Center[1]+e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]-e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString(fmt.Sprintf("%g %g %g %d %d\n", e.Center[0]-e.Size/2, e.Center[1]+e.Size/2, e.Center[2]+e.Size/2, e.level, len(e.Part)))
+		_, err = out.WriteString("\n")
+
+		_, err = out.WriteString("\n")
+
+		if err != nil {
+			return
+		}
+	}
+
+	if e.Frere != nil {
+		err = e.Frere.SaveNode(out)
+		if err != nil {
+			return
+		}
+	}
+
+	err = nil
+	return
 }
