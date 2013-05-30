@@ -1,7 +1,7 @@
 package octree
 
 import (
-	rg "WisiGo/ReadGadget"
+	rg "ReadGadget"
 	"math/rand"
 	"os"
 	"testing"
