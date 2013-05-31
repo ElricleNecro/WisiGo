@@ -2,6 +2,7 @@ package octree
 
 import (
 	rg "WisiGo/ReadGadget"
+	"fmt"
 	"math/rand"
 	"os"
 	"testing"
@@ -58,6 +59,7 @@ func TestSwap(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
+	UseGoRoutine = false
 	rdm := rand.New(rand.NewSource(int64(33)))
 	nb_part := 10
 	part := make([]rg.Particule, nb_part)
@@ -65,6 +67,7 @@ func TestCreate(t *testing.T) {
 	for i := 0; i < nb_part; i++ {
 		for j, _ := range part[i].Pos {
 			part[i].Pos[j] = 2.0*rdm.Float32() - 1.0
+			part[i].Id = int64(i + 1)
 		}
 	}
 
@@ -73,8 +76,11 @@ func TestCreate(t *testing.T) {
 	t.Log("Testing Creation")
 	root.Create(1)
 
+	fmt.Println(root.Part)
+
 	file, err := os.Create("test/part.dat")
 	defer file.Close()
+
 	if err != nil {
 		t.Error(err)
 	}
@@ -82,6 +88,7 @@ func TestCreate(t *testing.T) {
 		t.Error(err)
 	}
 	file.Close()
+
 	file, err = os.Create("test/tree.dat")
 	if err != nil {
 		t.Error(err)
@@ -89,4 +96,26 @@ func TestCreate(t *testing.T) {
 	if err = root.SaveNode(file); err != nil {
 		t.Error(err)
 	}
+}
+
+func TestSetPart(t *testing.T) {
+	rdm := rand.New(rand.NewSource(int64(33)))
+	nb_part := 10
+	part := make([]rg.Particule, nb_part)
+
+	for i := 0; i < nb_part; i++ {
+		for j, _ := range part[i].Pos {
+			part[i].Pos[j] = 2.0*rdm.Float32() - 1.0
+			part[i].Id = int64(i + 1)
+		}
+	}
+
+	center := [...]float32{0.5, 0.5, 0.}
+	root := New(part, center, 0.5)
+	t.Log("Testing Creation")
+	root.Create(1)
+	fmt.Println("")
+	fmt.Println("Before : ", part)
+	root.setPart()
+	fmt.Println("After : ", part)
 }
