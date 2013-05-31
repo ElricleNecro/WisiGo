@@ -70,8 +70,8 @@ func (e *Node) Create(NbMin int32) {
 		t1.level = e.level + 1
 
 		//We are calculating the particle contain in the Node :
-		NbUtil := t1.setPart(NbMin)
-		fmt.Println(t1.level, NbUtil)
+		NbUtil := t1.setPart()
+		fmt.Println(t1.level, NbUtil, NbUse)
 
 		//If there is particle in the node, we are actualizing the Particle slice, launching calculation of the son and preparing the next brother.
 		if NbUtil != 0 {
@@ -79,7 +79,9 @@ func (e *Node) Create(NbMin int32) {
 			if UseGoRoutine {
 				go t1.Create(NbMin)
 			} else {
+				fmt.Println("Going down!")
 				t1.Create(NbMin)
+				fmt.Println("Going up!")
 			}
 			NbUse += NbUtil
 			t1 = t1.Frere
@@ -87,7 +89,7 @@ func (e *Node) Create(NbMin int32) {
 	}
 }
 
-func (e *Node) setPart(NbMin int32) (NbUse int32) {
+func (e *Node) setPart() (NbUse int32) {
 	NbUse = 0
 	for i, _ := range e.Part {
 		if e.In(e.Part[i]) {
