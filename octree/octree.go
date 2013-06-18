@@ -6,8 +6,8 @@ import "fmt"
 
 var (
 	UseGoRoutine = false //Use of Go Routine for the tree creation?
-    // If you set this to true, don't forget to set runtime.GOMAXPROCS
-    // to the correct value.
+	// If you set this to true, don't forget to set runtime.GOMAXPROCS
+	// to the correct value.
 )
 
 //These Node structure will contain every needed informations about Tree Node.
