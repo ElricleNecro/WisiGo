@@ -1,7 +1,7 @@
 //-tags: main
 package octree
 
-import rg "ReadGadget"
+import rg "github.com/ElricleNecro/WisiGo/ReadGadget"
 import "fmt"
 
 var (
@@ -9,15 +9,6 @@ var (
 	// If you set this to true, don't forget to set runtime.GOMAXPROCS
 	// to the correct value.
 )
-
-//These Node structure will contain every needed informations about Tree Node.
-type Node struct {
-	Parent, Fils, Frere *Node          //These is the Main Node to Now : the parent, the first son and the next brother.
-	Center              [3]float32     //Center of the cube.
-	Size                float32        //Side size of the cube.
-	Part                []rg.Particule //List of the particle contain in the node.
-	level               int64          //Level of the tree.
-}
 
 // This function is used to create a tree using a list of the particle in the node, the center of the cube and his size. Her essential case of use will be for create the root of the tree.
 func New(part []rg.Particule, Center [3]float32, side float32) *Node {
@@ -43,50 +34,56 @@ func (e *Node) Create(NbMin int32) {
 		return
 	}
 
-	var t1 *Node = e.Fils
+	var t1 **Node
+	t1 = &e.Fils
 	var NbUse int32 = 0
 	center := [3]float32{0., 0., 0.}
 	side := e.Size / 2.
+	side2 := side / 2.
 
 	for i := 0; i < 8; i++ {
 		//We place the center of son :
 		if (i & 1) == 0 {
-			center[0] = e.Center[0] + side
+			center[0] = e.Center[0] + side2
 		} else {
-			center[0] = e.Center[0] - side
+			center[0] = e.Center[0] - side2
 		}
 		if (i & 2) == 0 {
-			center[1] = e.Center[1] + side
+			center[1] = e.Center[1] + side2
 		} else {
-			center[1] = e.Center[1] - side
+			center[1] = e.Center[1] - side2
 		}
 		if (i & 4) == 0 {
-			center[2] = e.Center[2] + side
+			center[2] = e.Center[2] + side2
 		} else {
-			center[2] = e.Center[2] - side
+			center[2] = e.Center[2] - side2
 		}
 
 		//Creation of the Node :
-		t1 = New(e.Part[NbUse:], center, side)
+		*t1 = New(e.Part[NbUse:], center, side)
 		// We set the level of the Node :
-		t1.level = e.level + 1
+		(*t1).level = e.level + 1
 
 		//We are calculating the particle contain in the Node :
 		NbUtil := t1.setPart()
-		fmt.Println(t1.level, NbUtil, NbUse)
+
+		println((*t1).level, NbUtil, NbUse)
+		print((*t1).level, " ")
+		for z := 0; z < 3; z++ {
+			print("] ", (*t1).Center[z]-(*t1).Size/2., "; ", (*t1).Center[z]+(*t1).Size/2., "] ")
+		}
+		println("")
 
 		//If there is particle in the node, we are actualizing the Particle slice, launching calculation of the son and preparing the next brother.
 		if NbUtil != 0 {
-			t1.Part = e.Part[NbUse:(NbUse + NbUtil)]
-			if UseGoRoutine {
-				go t1.Create(NbMin)
-			} else {
-				fmt.Println("Going down!")
-				t1.Create(NbMin)
-				fmt.Println("Going up!")
-			}
+			(*t1).Part = e.Part[NbUse:(NbUse + NbUtil)]
+
+			fmt.Println("Going down!")
+			(*t1).Create(NbMin)
+			fmt.Println("Going up!")
+
 			NbUse += NbUtil
-			t1 = t1.Frere
+			t1 = &(*t1).Frere
 		}
 	}
 }
