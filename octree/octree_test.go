@@ -1,8 +1,8 @@
 package octree
 
 import (
-	rg "ReadGadget"
-	"fmt"
+	//"fmt"
+	rg "github.com/ElricleNecro/WisiGo/ReadGadget"
 	"math/rand"
 	"os"
 	"testing"
@@ -58,7 +58,19 @@ func TestSwap(t *testing.T) {
 	}
 }
 
+func explore_node(a *Node) {
+	if a.Fils != nil {
+		explore_node(a.Fils)
+	} else {
+		println(a.level)
+	}
+	if a.Frere != nil {
+		explore_node(a.Frere)
+	}
+}
+
 func TestCreate(t *testing.T) {
+	println("\033[31mIn TestCreate\033[00m")
 	UseGoRoutine = false
 	rdm := rand.New(rand.NewSource(int64(33)))
 	nb_part := 10
@@ -76,7 +88,7 @@ func TestCreate(t *testing.T) {
 	t.Log("Testing Creation")
 	root.Create(1)
 
-	fmt.Println(root.Part)
+	//fmt.Println(root.Part)
 
 	file, err := os.Create("test/part.dat")
 	defer file.Close()
@@ -96,9 +108,14 @@ func TestCreate(t *testing.T) {
 	if err = root.SaveNode(file); err != nil {
 		t.Error(err)
 	}
+
+	print("\033[31m")
+	explore_node(root)
+	print("\033[00m")
 }
 
 func TestSetPart(t *testing.T) {
+	println("\033[31mIn TestSetPart\033[00m")
 	rdm := rand.New(rand.NewSource(int64(33)))
 	nb_part := 10
 	part := make([]rg.Particule, nb_part)
@@ -114,8 +131,5 @@ func TestSetPart(t *testing.T) {
 	root := New(part, center, 0.5)
 	t.Log("Testing Creation")
 	root.Create(1)
-	fmt.Println("")
-	fmt.Println("Before : ", part)
 	root.setPart()
-	fmt.Println("After : ", part)
 }
