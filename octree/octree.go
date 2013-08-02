@@ -3,6 +3,7 @@ package octree
 
 import rg "github.com/ElricleNecro/WisiGo/ReadGadget"
 import "fmt"
+import m "math"
 
 var (
 	UseGoRoutine = false //Use of Go Routine for the tree creation?
@@ -85,6 +86,72 @@ func (e *Node) Create(NbMin int32) {
 			NbUse += NbUtil
 			t1 = &(*t1).Frere
 		}
+	}
+}
+
+type Search struct {
+	Radius float64
+	Part   rg.Particule
+}
+
+func Insert(e []Search, to Search) {
+	var tmp, bak Search
+	var i int
+
+	// We search where to place the particule :
+	for i, _ = range e {
+		if e[i].Radius > to.Radius {
+			tmp = e[i]
+			e[i] = to
+			i++
+			break
+		}
+	}
+
+	// We move all particule from where we place 'to' to the end of the array
+	// (we don't keep those who get out from the array) :
+	for ; i < len(e); i++ {
+		bak = e[i]
+		e[i] = tmp
+		tmp = bak
+	}
+}
+
+func (e *Node) Nearest(part rg.Particule, NbVois int) []Search {
+	var res []Search = make([]Search, NbVois)
+
+	for i, _ := range res {
+		res[i].Radius = 2. * (float64)(e.Size)
+	}
+
+	e.SearchNeighboor(part, res[:])
+
+	return res
+}
+
+func (e *Node) Dist(part rg.Particule) float64 {
+	dx := m.Max(0., m.Abs((float64)(e.Center[0]-part.Pos[0]))-(float64)(e.Size/2.0))
+	dy := m.Max(0., m.Abs((float64)(e.Center[1]-part.Pos[1]))-(float64)(e.Size/2.0))
+	dz := m.Max(0., m.Abs((float64)(e.Center[2]-part.Pos[2]))-(float64)(e.Size/2.0))
+	return m.Sqrt(dx*dx + dy*dy + dz*dz)
+}
+
+func (e *Node) fill_neighboorhood(part rg.Particule, searchy []Search) {
+	for _, v := range e.Part {
+		if (float64)(v.Dist(part)) < searchy[len(searchy)-1].Radius {
+			Insert(searchy[:], Search{(float64)(v.Dist(part)), v})
+		}
+	}
+}
+
+func (e *Node) SearchNeighboor(part rg.Particule, searchy []Search) {
+	if e.Dist(part) > searchy[len(searchy)-1].Radius {
+		return
+	}
+	if e.Fils != nil {
+		e.Fils.SearchNeighboor(part, searchy[:])
+	} else {
+		e.fill_neighboorhood(part, searchy[:])
 	}
 }
 

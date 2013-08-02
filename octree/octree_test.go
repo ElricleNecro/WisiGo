@@ -114,6 +114,10 @@ func TestCreate(t *testing.T) {
 	print("\033[00m")
 }
 
+func TestNeighboor(t *testing.T) {
+
+}
+
 func TestSetPart(t *testing.T) {
 	println("\033[31mIn TestSetPart\033[00m")
 	rdm := rand.New(rand.NewSource(int64(33)))
