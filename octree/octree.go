@@ -124,7 +124,7 @@ func (e *Node) Nearest(part rg.Particule, NbVois int) []Search {
 		res[i].Radius = 2. * (float64)(e.Size)
 	}
 
-	e.SearchNeighboor(part, res[:])
+	e.SearchNeighbor(part, res[:])
 
 	return res
 }
@@ -144,12 +144,12 @@ func (e *Node) fill_neighboorhood(part rg.Particule, searchy []Search) {
 	}
 }
 
-func (e *Node) SearchNeighboor(part rg.Particule, searchy []Search) {
+func (e *Node) SearchNeighbor(part rg.Particule, searchy []Search) {
 	if e.Dist(part) > searchy[len(searchy)-1].Radius {
 		return
 	}
 	if e.Fils != nil {
-		e.Fils.SearchNeighboor(part, searchy[:])
+		e.Fils.SearchNeighbor(part, searchy[:])
 	} else {
 		e.fill_neighboorhood(part, searchy[:])
 	}
