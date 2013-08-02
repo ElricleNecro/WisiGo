@@ -152,7 +152,7 @@ func (e *Node) Dist(part rg.Particule) float64 {
 
 func (e *Node) fill_neighboorhood(part rg.Particule, searchy []Search) {
 	for _, v := range e.Part {
-		if (float64)(v.Dist(part)) < searchy[len(searchy)-1].Radius {
+		if (float64)(v.Dist(part)) < searchy[len(searchy)-1].Radius && v.Id != part.Id {
 			Insert(searchy[:], Search{(float64)(v.Dist(part)), v})
 		}
 	}

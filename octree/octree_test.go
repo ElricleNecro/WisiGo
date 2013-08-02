@@ -144,9 +144,27 @@ func TestNeighbor(t *testing.T) {
 	}
 
 	// create the tree
-	center := [...]float32{0.5, 0.5, 0.}
-	tree := New(part, center, 0.5)
+	center := [...]float32{0.0, 0.0, 0.}
+	tree := New(part, center, 2.0)
 
+	file, err := os.Create("test/neigh.dat")
+	defer file.Close()
+
+	if err != nil {
+		t.Error(err)
+	}
+	if err = tree.savePart(file); err != nil {
+		t.Error(err)
+	}
+	file.Close()
+
+	file, err = os.Create("test/tree_neigh.dat")
+	if err != nil {
+		t.Error(err)
+	}
+	if err = tree.SaveNode(file); err != nil {
+		t.Error(err)
+	}
 	// loop over particles and get their 10 closest neighbors
 	for _, p := range part {
 
@@ -182,14 +200,18 @@ func TestNeighbor(t *testing.T) {
 func bruteForceNeighbors(parts []rg.Particule, part0 rg.Particule, nb_part int, n_search int) (searchy []Search) {
 
 	// allocate memory for all search
-	all_search := make([]Search, nb_part)
+	all_search := make([]Search, nb_part-1)
 
 	// compute the distance for all particules
-	for i, p := range parts {
+	i := 0
+	for _, p := range parts {
 
-		// Compute the distance between the point and all points
-		all_search[i].Radius = float64(part0.Dist(p))
-		all_search[i].Part = p
+		if part0.Id != p.Id {
+			// Compute the distance between the point and all points
+			all_search[i].Radius = float64(part0.Dist(p))
+			all_search[i].Part = p
+			i += 1
+		}
 
 	}
 
