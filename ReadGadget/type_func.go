@@ -1,5 +1,7 @@
 package ReadGadget
 
+import m "math"
+
 func (e WriteError) Error() string {
 	return string(e)
 }
@@ -14,6 +16,10 @@ func (e ByType) Swap(i, j int) {
 
 func (e ByType) Less(i, j int) bool {
 	return e[i].Type < e[j].Type
+}
+
+func (e Particule) Dist(a Particule) float32 {
+	return (float32)(m.Sqrt((float64)((e.Pos[0]-a.Pos[0])*(e.Pos[0]-a.Pos[0]) + (e.Pos[1]-a.Pos[1])*(e.Pos[1]-a.Pos[1]) + (e.Pos[2]-a.Pos[2])*(e.Pos[2]-a.Pos[2]))))
 }
 
 //Swap particle a and b!
