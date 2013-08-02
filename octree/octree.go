@@ -94,6 +94,20 @@ type Search struct {
 	Part   rg.Particule
 }
 
+type ByDist []Search
+
+func (e ByDist) Len() int {
+	return len(e)
+}
+
+func (e ByDist) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
+}
+
+func (e ByDist) Less(i, j int) bool {
+	return e[i].Radius < e[j].Radius
+}
+
 func Insert(e []Search, to Search) {
 	var tmp, bak Search
 	var i int
