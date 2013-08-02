@@ -5,6 +5,7 @@ import (
 	rg "github.com/ElricleNecro/WisiGo/ReadGadget"
 	"math/rand"
 	"os"
+	"sort"
 	"testing"
 )
 
@@ -114,7 +115,92 @@ func TestCreate(t *testing.T) {
 	print("\033[00m")
 }
 
-func TestNeighboor(t *testing.T) {
+func TestNeighbor(t *testing.T) {
+
+	println("\033[31mIn TestNeighbor\033[00m")
+
+	// rand object
+	rdm := rand.New(rand.NewSource(int64(33)))
+
+	// number of particle to generate
+	nb_part := 5000
+
+	// number of particles to search
+	nb_near := 10
+
+	// allocate the memory of the slice
+	part := make([]rg.Particule, nb_part)
+
+	// the same for particles found
+	searchy := make([]Search, nb_near)
+	search_brut := make([]Search, nb_near)
+
+	// loop over particles and give them positions
+	for i := 0; i < nb_part; i++ {
+		for j, _ := range part[i].Pos {
+			part[i].Pos[j] = 2.0*rdm.Float32() - 1.0
+			part[i].Id = int64(i + 1)
+		}
+	}
+
+	// create the tree
+	center := [...]float32{0.5, 0.5, 0.}
+	tree := New(part, center, 0.5)
+
+	// loop over particles and get their 10 closest neighbors
+	for _, p := range part {
+
+		// search neighbors with the tree
+		searchy = tree.Nearest(p, nb_near)
+
+		// sort elements by distance
+		sort.Sort(ByDist(searchy))
+
+		// the same with brute force
+		search_brut = bruteForceNeighbors(part, p, nb_part, nb_near)
+
+		// loop over selected points
+		for i := 0; i < nb_near; i++ {
+
+			// Check comparison between brute force and the tree
+			if searchy[i].Part.Id != search_brut[i].Part.Id {
+				t.Fatal("Search nearest neighbors failed because particles are different with brute force !")
+			}
+
+			// check that there is not the same particle as we search
+			if searchy[i].Part.Id == p.Id {
+				t.Fatal("The particle used for search is included in the neighbors !")
+			}
+			//println(p.Id, searchy[i].Part.Id, search_brut[i].Part.Id)
+			//println(searchy[i].Radius, search_brut[i].Radius)
+		}
+
+	}
+
+}
+
+func bruteForceNeighbors(parts []rg.Particule, part0 rg.Particule, nb_part int, n_search int) (searchy []Search) {
+
+	// allocate memory for all search
+	all_search := make([]Search, nb_part)
+
+	// compute the distance for all particules
+	for i, p := range parts {
+
+		// Compute the distance between the point and all points
+		all_search[i].Radius = float64(part0.Dist(p))
+		all_search[i].Part = p
+
+	}
+
+	// need to order the distances and corresponding points
+	// by the distance
+	sort.Sort(ByDist(all_search))
+
+	// Get the neighbors
+	searchy = all_search[:n_search]
+
+	return
 
 }
 
