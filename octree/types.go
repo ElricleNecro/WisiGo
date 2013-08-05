@@ -14,3 +14,10 @@ type Node struct {
 type WriteStringer interface {
 	WriteString(s string) (ret int, err error)
 }
+
+type Search struct {
+	Radius float64
+	Part   rg.Particule
+}
+
+type ByDist []Search
