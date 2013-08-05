@@ -277,10 +277,47 @@ func TestPotential(t *testing.T) {
 	}
 }
 
+func TestTotalPotential(t *testing.T) {
+	rdm := rand.New(rand.NewSource(int64(33)))
+	nb_part := 10
+	part := make([]rg.Particule, nb_part)
+	var testy rg.Particule
+
+	for i := 0; i < nb_part; i++ {
+		for j, _ := range part[i].Pos {
+			part[i].Pos[j] = 2.0*rdm.Float32() - 1.0
+			part[i].Id = int64(i + 1)
+			part[i].Mass = 1.0
+		}
+	}
+
+	center := [...]float32{0., 0., 0.}
+	root := New(part, center, 2.0)
+	Ggrav = 1.0
+
+	testy.Mass = 1.0
+	testy.Id = 0
+	for i, _ := range testy.Pos {
+		testy.Pos[i] = 0.
+	}
+
+	pot := root.TotalPotential(0.0)
+	var pot2 float64 = 0.0
+	for _, v := range part {
+		pot2 += bruteforcePotential(part, v)
+	}
+
+	if pot != pot2 {
+		t.Fatal("Tree Code is different from brute force:", pot, " != ", pot2)
+	}
+}
+
 func bruteforcePotential(part []rg.Particule, testy rg.Particule) float64 {
 	var pot float64 = 0.0
 	for _, v := range part {
-		pot += Ggrav * (float64)(v.Mass/v.Dist(testy))
+		if v.Dist(testy) != 0.0 {
+			pot += Ggrav * (float64)(v.Mass/v.Dist(testy))
+		}
 	}
 	return pot
 }
