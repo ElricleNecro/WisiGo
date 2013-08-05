@@ -128,7 +128,10 @@ func (e *Node) SearchNeighbor(part rg.Particule, searchy []Search) {
 		return
 	}
 	if e.Fils != nil {
-		e.Fils.SearchNeighbor(part, searchy[:])
+		//e.Fils.SearchNeighbor(part, searchy[:])
+		for t1 := e.Fils; t1 != nil; t1 = t1.Frere {
+			t1.SearchNeighbor(part, searchy[:])
+		}
 	} else {
 		e.fill_neighboorhood(part, searchy[:])
 	}
@@ -154,7 +157,7 @@ func (e *Node) Potential(part rg.Particule, opening float64) float64 {
 	//We can process the Node and it has sons:
 	if (float64)(e.Size)/e.Dist(part) >= opening && e.Fils != nil {
 		var pot float64 = 0.0
-		for t1 := e.Fils; t1.Frere != nil; t1 = t1.Frere {
+		for t1 := e.Fils; t1 != nil; t1 = t1.Frere {
 			pot += t1.Potential(part, opening)
 		}
 		return pot
