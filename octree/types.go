@@ -7,6 +7,7 @@ type Node struct {
 	Parent, Fils, Frere *Node          //These is the Main Node to Now : the parent, the first son and the next brother.
 	Center              [3]float32     //Center of the cube.
 	Size                float32        //Side size of the cube.
+	Mass                float64        //Total Mass contain into the Cube.
 	Part                []rg.Particule //List of the particle contain in the node.
 	level               int64          //Level of the tree.
 }
