@@ -1,14 +1,17 @@
 //-tags: main
 package octree
 
-import rg "github.com/ElricleNecro/WisiGo/ReadGadget"
-import "fmt"
-import m "math"
+import (
+	"fmt"
+	rg "github.com/ElricleNecro/WisiGo/ReadGadget"
+	m "math"
+)
 
 var (
 	UseGoRoutine = false //Use of Go Routine for the tree creation?
 	// If you set this to true, don't forget to set runtime.GOMAXPROCS
 	// to the correct value.
+	Ggrav = 6.67e-11 //Gravitational constant express in International system of units (L^3 M^{-1}T^{-2}).
 )
 
 // This function is used to create a tree using a list of the particle in the node, the center of the cube and his size. Her essential case of use will be for create the root of the tree.
@@ -68,66 +71,28 @@ func (e *Node) Create(NbMin int32) {
 		//We are calculating the particle contain in the Node :
 		NbUtil := t1.setPart()
 
-		println((*t1).level, NbUtil, NbUse)
-		print((*t1).level, " ")
-		for z := 0; z < 3; z++ {
-			print("] ", (*t1).Center[z]-(*t1).Size/2., "; ", (*t1).Center[z]+(*t1).Size/2., "] ")
-		}
-		println("")
+		//println((*t1).level, NbUtil, NbUse)
+		//print((*t1).level, " ")
+		//for z := 0; z < 3; z++ {
+		//print("] ", (*t1).Center[z]-(*t1).Size/2., "; ", (*t1).Center[z]+(*t1).Size/2., "] ")
+		//}
+		//println("")
 
 		//If there is particle in the node, we are actualizing the Particle slice, launching calculation of the son and preparing the next brother.
 		if NbUtil != 0 {
 			(*t1).Part = e.Part[NbUse:(NbUse + NbUtil)]
+			(*t1).Mass = 0.0
+			for _, v := range (*t1).Part {
+				(*t1).Mass += float64(v.Mass)
+			}
 
-			fmt.Println("Going down!")
+			//fmt.Println("Going down!")
 			(*t1).Create(NbMin)
-			fmt.Println("Going up!")
+			//fmt.Println("Going up!")
 
 			NbUse += NbUtil
 			t1 = &(*t1).Frere
 		}
-	}
-}
-
-type Search struct {
-	Radius float64
-	Part   rg.Particule
-}
-
-type ByDist []Search
-
-func (e ByDist) Len() int {
-	return len(e)
-}
-
-func (e ByDist) Swap(i, j int) {
-	e[i], e[j] = e[j], e[i]
-}
-
-func (e ByDist) Less(i, j int) bool {
-	return e[i].Radius < e[j].Radius
-}
-
-func Insert(e []Search, to Search) {
-	var tmp, bak Search
-	var i int
-
-	// We search where to place the particule :
-	for i, _ = range e {
-		if e[i].Radius > to.Radius {
-			tmp = e[i]
-			e[i] = to
-			i++
-			break
-		}
-	}
-
-	// We move all particule from where we place 'to' to the end of the array
-	// (we don't keep those who get out from the array) :
-	for ; i < len(e); i++ {
-		bak = e[i]
-		e[i] = tmp
-		tmp = bak
 	}
 }
 
@@ -163,9 +128,54 @@ func (e *Node) SearchNeighbor(part rg.Particule, searchy []Search) {
 		return
 	}
 	if e.Fils != nil {
-		e.Fils.SearchNeighbor(part, searchy[:])
+		//e.Fils.SearchNeighbor(part, searchy[:])
+		for t1 := e.Fils; t1 != nil; t1 = t1.Frere {
+			t1.SearchNeighbor(part, searchy[:])
+		}
 	} else {
 		e.fill_neighboorhood(part, searchy[:])
+	}
+}
+
+func (e *Node) GetBrother() *Node {
+	return e.Frere
+}
+
+func (e *Node) GetSon() *Node {
+	return e.Fils
+}
+
+func (e *Node) TotalPotential(opening float64) float64 {
+	var pot float64 = 0.
+	for _, v := range e.Part {
+		pot += e.Potential(v, opening)
+	}
+	return pot * 0.5
+}
+
+func (e *Node) Potential(part rg.Particule, opening float64) float64 {
+	//We can process the Node and it has sons:
+	if (float64)(e.Size)/e.Dist(part) >= opening && e.Fils != nil {
+		var pot float64 = 0.0
+		for t1 := e.Fils; t1 != nil; t1 = t1.Frere {
+			pot += t1.Potential(part, opening)
+		}
+		return pot
+	}
+
+	//The previous condition is wrong, so we have two possibilities:
+	if e.Fils == nil {
+		//we are in a leaf:
+		var pot float64 = 0.
+		for _, v := range e.Part {
+			if v.Dist(part) != 0.0 {
+				pot += Ggrav * (float64)(v.Mass/v.Dist(part))
+			}
+		}
+		return pot
+	} else {
+		//the node is too far or too small to be processed, we do some approximation:
+		return Ggrav * e.Mass / m.Sqrt((float64)((e.Center[0]-part.Pos[0])*(e.Center[0]-part.Pos[0])+(e.Center[1]-part.Pos[1])*(e.Center[1]-part.Pos[1])+(e.Center[2]-part.Pos[2])*(e.Center[2]-part.Pos[2]))) //e.Dist(part)
 	}
 }
 
