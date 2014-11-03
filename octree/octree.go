@@ -150,7 +150,7 @@ func (e *Node) TotalPotential(opening float64) float64 {
 	for _, v := range e.Part {
 		pot += e.Potential(v, opening)
 	}
-	return pot
+	return pot * 0.5
 }
 
 func (e *Node) Potential(part rg.Particule, opening float64) float64 {
